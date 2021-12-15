@@ -60,9 +60,13 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Download build dependencies
+        run: curl https://slproweb.com/download/Win64OpenSSL-1_1_1m.exe -o Win64OpenSSL-1_1_1m.exe
+        shell: bash
+
       - name: Install build dependencies
         run: |
-          choco install openssl --no-progress
+          .\Win64OpenSSL-1_1_1m.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-
           New-Item C:\OpenSSL-Win64\lib -ItemType Directory
           New-Item -ItemType SymbolicLink -Path "C:\OpenSSL-Win64\lib\libeay32.lib" -Target "C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib"
           npm install
