@@ -47,7 +47,7 @@ jobs:
                 node-version: '16'
 
             - name: Build mining proxy
-              run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -C Brotli
+              run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -C Brotli -d &2>&1
 
             - name: Rename mining proxy
               run: |
@@ -76,6 +76,163 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     needs: [build-artifacts, build-mac-arm64-artifact]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get linux artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-binary
+
+      - name: Get Windows artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-binary
+
+      - name: Get the version (Release prep)
+        id: get_version
+        run: |
+          version=$(echo ${GITHUB_REF/refs\/tags\//} | cut -c 2-)
+          echo ::set-output name=VERSION::$version
+        shell: bash
+
+      - name: Generate miner proxies checksums (Release prep)
+        run: |
+          filename=$(git rev-parse --short HEAD)
+          mv "alephium-mining-proxy-linux_$filename" "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-linux"
+          mv "alephium-mining-proxy-macos_$filename" "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-macos"
+          mv "alephium-mining-proxy-windows_$filename.exe" "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-windows.exe"
+          sha256sum "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-linux" > "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-linux.checksum"
+          sha256sum "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-macos" > "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-macos.checksum"
+          sha256sum "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-windows.exe" > "alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-windows.exe.checksum"
+          ls -la
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-linux
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-linux.checksum
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-macos
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-macos.checksum
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-windows.exe
+            alephium-${{ steps.get_version.outputs.VERSION }}-mining-proxy-windows.exe.checksum
+
+  buildx_and_push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+
+      - name: Get the version
+        id: get_version
+        run: |
+          version=$(git describe --tags --abbrev=0)
+          echo $version
+          echo ${version:1}
+          echo ::set-output name=VERSION::$version
+          echo ::set-output name=VERSION-NO-V::${version:1}
+        shell: bash
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and publish docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: RELEASE=${{ steps.get_version.outputs.VERSION-NO-V }}
+          platforms: linux/amd64
+          tags: |
+            docker.io/capito27/mining-proxy:${{ steps.get_version.outputs.VERSION }}
+            docker.io/capito27/mining-proxy:latest
+          push: truename: build artifacts
+on: [ push ]
+
+jobs:
+  build-artifacts:
+    name: build-artifacts
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Build mining proxy
+        run: npm install && npm run build
+
+      - name: Rename mining proxy
+        run: |
+          mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-binary
+          path: bin/alephium-mining-proxy-linux_*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-binary
+          path: bin/alephium-mining-proxy-macos_*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: bin/alephium-mining-proxy-windows_*
+
+  build-mac-arm64-artifact:
+    name: build-mac-arm64-artifact
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Build mining proxy
+        run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -C Brotli -d &2>&1
+
+      - name: Rename mining proxy
+        run: |
+          ls bin/
+          mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-binary
+          path: bin/alephium-mining-proxy-linux_*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-binary
+          path: bin/alephium-mining-proxy-macos_*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: bin/alephium-mining-proxy-windows_*
+
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: [ build-artifacts, build-mac-arm64-artifact ]
     steps:
       - uses: actions/checkout@v2
 
