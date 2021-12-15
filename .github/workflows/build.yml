@@ -59,7 +59,6 @@ jobs:
       - name: Install build dependencies
         run: |
           choco install openssl --no-progress
-          C:\OpenSSL-Win64
           New-Item C:\OpenSSL-Win64\lib -ItemType Directory
           New-Item -ItemType SymbolicLink -Path "C:\OpenSSL-Win64\lib\libeay32.lib" -Target "C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib"
 
