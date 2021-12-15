@@ -56,17 +56,15 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies (OpenSSL, node-gpy, ...)
+      - name: Install build dependencies
         run: |
-          $PSVersionTable
           Set-ExecutionPolicy Unrestricted -Force
-          iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'))
-          get-boxstarter -Force
-          Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
+          choco install openssl.light
         shell: powershell
-        
+
       - name: Build mining proxy
         run: npm install && npm run build
+        shell: powershell
 
       - name: Rename mining proxy
         run: |
