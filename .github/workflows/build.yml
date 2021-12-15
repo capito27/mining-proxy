@@ -25,7 +25,7 @@ jobs:
           path: bin/alephium-mining-proxy-linux_*
 
   build-windows-artifact:
-    name: build-artifacts
+    name: build-windows-artifact
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
@@ -79,7 +79,7 @@ jobs:
           node-version: '16'
 
       - name: Build mining proxy
-        run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -d &2>&1
+        run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -d
 
       - name: Rename mining proxy
         run: |
