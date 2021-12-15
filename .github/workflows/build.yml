@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: Build mining proxy
-        run: npm run build -- --targets node16-linux-x64
+        run: npm run build -- --targets node16-linux-x64 -d
 
       - name: Rename mining proxy
         run: mv bin/alephium-mining-proxy bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
