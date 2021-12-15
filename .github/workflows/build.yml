@@ -62,7 +62,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
+          .\Win64OpenSSL-3_0_0.exe /sp- /suppressmsgboxes
           ls "C:\"
 
       - name: Build mining proxy
