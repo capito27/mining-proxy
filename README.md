@@ -45,7 +45,7 @@ At the moment, one is only able to build the MacOS binaries for ARM64 on a Mac d
 To do so, run the following commands:
 ```shell
 npm install
-npx pkg . --target node16-macos-arm64
+npx pkg . --target node16-macos-arm64 --no-native-build
 ```
 
 # Docker and docker-compose setup

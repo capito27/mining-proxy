@@ -47,7 +47,7 @@ jobs:
                 node-version: '16'
 
             - name: Build mining proxy
-              run: npm install && npx pkg . --target node14-macos-arm64
+              run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -C Brotli
 
             - name: Rename mining proxy
               run: |

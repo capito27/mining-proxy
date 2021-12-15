@@ -9,7 +9,7 @@
   "author": "alephium",
   "scripts": {
     "start": "node ./init.js",
-    "build": "npx pkg ."
+    "build": "npx pkg . --no-native-build -C Brotli"
   },
   "repository": {
     "type": "git",
