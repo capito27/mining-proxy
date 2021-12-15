@@ -62,8 +62,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          Set-ExecutionPolicy Unrestricted -Force
-          ls -la
+        .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
         shell: powershell
 
       - name: Build mining proxy
