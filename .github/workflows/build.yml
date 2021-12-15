@@ -2,7 +2,7 @@ name: build artifacts
 on: [ push ]
 
 jobs:
-  build-artifacts:
+  build-linux-artifact:
     name: build-linux-artifact
     runs-on: ubuntu-18.04
     steps:
@@ -18,18 +18,53 @@ jobs:
       - name: Rename mining proxy
         run: |
           mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
-          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
-          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
 
       - uses: actions/upload-artifact@v2
         with:
           name: linux-binary
           path: bin/alephium-mining-proxy-linux_*
 
+  build-macos-artifact:
+    name: build-macos-artifact
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Build mining proxy
+        run: npm install && npm run build
+
+      - name: Rename mining proxy
+        run: |
+          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
+
       - uses: actions/upload-artifact@v2
         with:
           name: macos-binary
           path: bin/alephium-mining-proxy-macos_*
+
+  build-windows-artifact:
+    name: build-windows-artifact
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install && npm run build
+
+      - name: Build mining proxy
+        run: npm install && npm run build
+
+      - name: Rename mining proxy
+        run: |
+          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
 
       - uses: actions/upload-artifact@v2
         with:
@@ -40,7 +75,7 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: build-artifacts
+    needs: [build-linux-artifact, build-macos-artifact, build-windows-artifact]
     steps:
       - uses: actions/checkout@v2
 
@@ -48,6 +83,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: linux-binary
+
+      - name: Get macos artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: macos-binary
 
       - name: Get Windows artifact
         uses: actions/download-artifact@v2
