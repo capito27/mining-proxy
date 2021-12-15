@@ -12,8 +12,20 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        id: cache-deps
+        with:
+          path: |
+            .\node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install build dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm install
+
       - name: Build mining proxy
-        run: npm install && npm run build
+        run: npm run build
 
       - name: Rename mining proxy
         run: |
@@ -34,8 +46,20 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        id: cache-deps
+        with:
+          path: |
+            .\node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install build dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm install
+
       - name: Build mining proxy
-        run: npm install && npm run build
+        run: npm run build
 
       - name: Rename mining proxy
         run: |
