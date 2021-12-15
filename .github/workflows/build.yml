@@ -10,7 +10,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Build mining proxy
         run: npm install && npm run build
@@ -44,7 +44,7 @@ jobs:
 
             - uses: actions/setup-node@v2
               with:
-                node-version: '14'
+                node-version: '16'
 
             - name: Build mining proxy
               run: npm install && npx pkg . --target node14-macos-arm64

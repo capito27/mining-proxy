@@ -25,7 +25,7 @@
     "scripts": "*.js",
     "assets": "node_modules/**/*",
     "outputPath": "bin",
-    "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-windows-x64" ]
+    "targets": [ "node16-linux-x64", "node16-macos-x64", "node16-windows-x64" ]
   },
   "bin": {
     "proxy": "init.js"
