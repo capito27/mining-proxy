@@ -63,7 +63,7 @@ jobs:
       - name: Install build dependencies
         run: |
           .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
-          ls "C:\Program Files\"
+          ls "C:\Program Files\OpenSSL"
         shell: powershell
 
       - name: Build mining proxy
