@@ -9,7 +9,7 @@
   "author": "alephium",
   "scripts": {
     "start": "node ./init.js",
-    "build": "pkg ."
+    "build": "npx pkg ."
   },
   "repository": {
     "type": "git",
@@ -19,13 +19,13 @@
     "@napi-rs/blake-hash": "1.3.0",
     "binary-parser": "2.0.2",
     "bignum": "0.13.1",
-    "base58-native": "*",
-    "pkg": "^5.5.1"
+    "base58-native": "*"
   },
   "pkg": {
     "scripts": "*.js",
     "assets": "node_modules/**/*",
-    "outputPath": "bin"
+    "outputPath": "bin",
+    "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-windows-x64" ]
   },
   "bin": {
     "proxy": "init.js"

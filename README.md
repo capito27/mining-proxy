@@ -29,10 +29,23 @@ gpu-miner -p 30032
 
 # Build miner proxy
 
+Dependencies :
+- install node.js(>=14) and npm(>=8)
+ 
 One can build the miner proxy into a self-contained binary file with:
 ```shell
 npm install
 npm run build
+```
+
+## Building for ARM64 Mac OS
+
+At the moment, one is only able to build the MacOS binaries for ARM64 on a Mac device. 
+
+To do so, run the following commands:
+```shell
+npm install
+npx pkg . --target node14-macos-arm64
 ```
 
 # Docker and docker-compose setup
