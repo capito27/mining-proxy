@@ -56,10 +56,13 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Download build dependencies
+        run: curl "https://slproweb.com/download/Win64OpenSSL-3_0_0.exe" -o "Win64OpenSSL-3_0_0.exe"
+        shell: bash
+
       - name: Install build dependencies
         run: |
           Set-ExecutionPolicy Unrestricted -Force
-          Invoke-WebRequest -Uri "https://slproweb.com/download/Win64OpenSSL-3_0_0.exe" -OutFile "Win64OpenSSL-3_0_0.exe"
           ls -la
         shell: powershell
 
