@@ -56,19 +56,32 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        id: cache-deps
+        with:
+          path: |
+            .\node_modules
+            "C:\OpenSSL-Win64\lib\"
+            "C:\Program Files\OpenSSL-Win64"
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install build dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           choco install openssl --no-progress
           New-Item C:\OpenSSL-Win64\lib -ItemType Directory
           New-Item -ItemType SymbolicLink -Path "C:\OpenSSL-Win64\lib\libeay32.lib" -Target "C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib"
+          npm install
 
       - name: Build mining proxy
         run: |
-          npm install && npm run build
+         npm run build
 
       - name: Rename mining proxy
         run: |
           mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
+        shell: bash
 
       - uses: actions/upload-artifact@v2
         with:
