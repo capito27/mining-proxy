@@ -27,7 +27,13 @@ run miner:
 gpu-miner -p 30032
 ```
 
+# Build miner proxy
 
+One can build the miner proxy into a self-contained binary file with:
+```shell
+npm install
+npm run build
+```
 
 # Docker and docker-compose setup
 
