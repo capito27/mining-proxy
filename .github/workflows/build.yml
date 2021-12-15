@@ -56,13 +56,13 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Download build dependencies
+      - name: Download build dependencies (OpenSSL dev)
         run: curl "https://slproweb.com/download/Win64OpenSSL-3_0_0.exe" -o "Win64OpenSSL-3_0_0.exe"
         shell: bash
 
       - name: Install build dependencies
         run: |
-        .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
+          .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
         shell: powershell
 
       - name: Build mining proxy
