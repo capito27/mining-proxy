@@ -2,7 +2,7 @@ name: build artifacts
 on: [ push ]
 
 jobs:
-  build-linux-artifact:
+  build-artifacts:
     name: build-linux-artifact
     runs-on: ubuntu-18.04
     steps:
@@ -18,87 +18,29 @@ jobs:
       - name: Rename mining proxy
         run: |
           mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
 
       - uses: actions/upload-artifact@v2
         with:
           name: linux-binary
           path: bin/alephium-mining-proxy-linux_*
 
-  build-windows-artifact:
-    name: build-windows-artifact
-    runs-on: windows-2019
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
+      - uses: actions/upload-artifact@v2
         with:
-          node-version: '16'
-
-      - name: Build mining proxy
-        run: npm install && npm run build
-
-      - name: Rename mining proxy
-        run: |
-          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
+          name: macos-binary
+          path: bin/alephium-mining-proxy-macos_*
 
       - uses: actions/upload-artifact@v2
         with:
           name: windows-binary
           path: bin/alephium-mining-proxy-windows_*
 
-  build-mac-x64-artifact:
-    name: build-mac-x64-artifact
-    runs-on: macos-10.15
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Build mining proxy
-        run: npm install && npm run build
-
-      - name: Rename mining proxy
-        run: |
-          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: macos-binary
-          path: bin/alephium-mining-proxy-macos_*
-
-  build-mac-arm64-artifact:
-    name: build-mac-arm64-artifact
-    runs-on: macos-10.15
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Build mining proxy
-        run: npm install && npx pkg . --target node14-macos-arm64 --no-native-build -d
-
-      - name: Rename mining proxy
-        run: |
-          ls bin/
-          mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
-          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
-          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
-
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: macos-binary
-          path: bin/alephium-mining-proxy-macos_*
-
   release:
     name: release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: [ build-linux-artifact, build-windows-artifact, build-mac-x64-artifact, build-mac-arm64-artifact ]
+    needs: build-artifacts
     steps:
       - uses: actions/checkout@v2
 
