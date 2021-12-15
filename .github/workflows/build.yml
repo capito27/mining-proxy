@@ -63,14 +63,11 @@ jobs:
       - name: Install build dependencies
         run: |
           .\Win64OpenSSL-3_0_0.exe /silent /sp- /suppressmsgboxes
-          ls "C:\Program Files\OpenSSL"
-        shell: powershell
+          ls "C:\"
 
       - name: Build mining proxy
         run: |
-          npm install 
-          npm run build
-        shell: powershell
+          npm install && npm run build
 
       - name: Rename mining proxy
         run: |
