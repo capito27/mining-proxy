@@ -56,8 +56,12 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
-        run: npm install && npm run build
+      - name: Install dependencies (OpenSSL, node-gpy, ...)
+        run: |
+          Set-ExecutionPolicy Unrestricted -Force
+          iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'))
+          get-boxstarter -Force
+          Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
 
       - name: Build mining proxy
         run: npm install && npm run build
