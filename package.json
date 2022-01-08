@@ -9,7 +9,7 @@
   "author": "alephium",
   "scripts": {
     "start": "node ./init.js",
-    "build": "npx nexe init.js -t x64-14.15.3 -o bin/alephium-mining-proxy"
+    "build": "npx nexe init.js -t x64-14.15.3 -o bin/alephium-mining-proxy -r \"./node_modules/**/*\""
   },
   "repository": {
     "type": "git",
