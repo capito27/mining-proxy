@@ -10,13 +10,22 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '14'
 
       - name: Install build dependencies
         run: npm install
 
       - name: Build mining proxy
-        run: npm run build -- --targets node16-linux-x64
+        run: npm run build
+
+      - name: Compress mining proxy
+        run: |
+          wget -L https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz
+          tar -xf upx-3.96-amd64_linux.tar.xz
+          cd upx-3.96-amd64_linux
+          chmod +x upx
+          ./upx --lzma ../bin/alephium-mining-proxy
+          cd ..
 
       - name: Rename mining proxy
         run: mv bin/alephium-mining-proxy bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
@@ -34,13 +43,18 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '14'
 
       - name: Install build dependencies
         run: npm install
 
       - name: Build mining proxy
-        run: npm run build -- --targets node16-macos-x64
+        run: npm run build
+
+      - name: Compress mining proxy
+        run: |
+          brew install upx
+          upx --lzma bin/alephium-mining-proxy
 
       - name: Rename mining proxy
         run: mv bin/alephium-mining-proxy bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
@@ -60,15 +74,17 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install build dependencies
-        run: |
-          choco install openssl --no-progress
-          New-Item C:\OpenSSL-Win64\lib -ItemType Directory
-          New-Item -ItemType SymbolicLink -Path "C:\OpenSSL-Win64\lib\libeay32.lib" -Target "C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib"
-          npm install
-
       - name: Build mining proxy
-        run: npm run build -- --targets node16-windows-x64
+        run: npm run build
+
+      - name: Compress mining proxy
+        run: |
+          Invoke-WebRequest https://github.com/upx/upx/releases/download/v3.96/upx-3.96-win64.zip -OutFile upx-3.96-win64.zip
+          Expand-Archive -Path upx-3.96-win64.zip
+          cd upx-3.96-win64\upx-3.96-win64
+          dir
+          .\upx.exe --lzma ..\..\bin\alephium-mining-proxy.exe
+          cd ..
 
       - name: Rename mining proxy
         run: mv bin/alephium-mining-proxy.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
