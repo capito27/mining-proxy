@@ -9,7 +9,7 @@
   "author": "alephium",
   "scripts": {
     "start": "node ./init.js",
-    "build": "npx nexe init.js -t x64-14.15.3 -o bin/alephium-mining-proxy -r \"./node_modules/**/*\""
+    "build": "npx pkg . -C brotli"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,8 @@
   "pkg": {
     "scripts": "*.js",
     "assets": "node_modules/**/*",
-    "outputPath": "bin"
+    "outputPath": "bin",
+    "targets": [ "node16-linux-x64", "node16-windows-x64", "node16-macos-x64" ]
   },
   "bin": {
     "proxy": "init.js"

@@ -2,71 +2,9 @@ name: build artifacts
 on: [ push ]
 
 jobs:
-  build-linux-artifact:
-    name: build-linux-artifact
+  build-artifacts:
+    name: build-artifacts
     runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - name: Install build dependencies
-        run: npm install
-
-      - name: Build mining proxy
-        run: npm run build
-
-      - name: Compress mining proxy
-        run: |
-          wget -L https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz
-          tar -xf upx-3.96-amd64_linux.tar.xz
-          cd upx-3.96-amd64_linux
-          chmod +x upx
-          ./upx --lzma ../bin/alephium-mining-proxy
-          cd ..
-
-      - name: Rename mining proxy
-        run: mv bin/alephium-mining-proxy bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: linux-binary
-          path: bin/alephium-mining-proxy-linux_*
-
-  build-macos-artifact:
-    name: build-macos-artifact
-    runs-on: macos-10.15
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - name: Install build dependencies
-        run: npm install
-
-      - name: Build mining proxy
-        run: npm run build
-
-      - name: Compress mining proxy
-        run: |
-          brew install upx
-          upx --lzma bin/alephium-mining-proxy
-
-      - name: Rename mining proxy
-        run: mv bin/alephium-mining-proxy bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: macos-binary
-          path: bin/alephium-mining-proxy-macos_*
-
-  build-windows-artifact:
-    name: build-windows-artifact
-    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
 
@@ -74,21 +12,27 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Install build dependencies
+        run: npm install
+
       - name: Build mining proxy
         run: npm run build
 
-      - name: Compress mining proxy
-        run: |
-          Invoke-WebRequest https://github.com/upx/upx/releases/download/v3.96/upx-3.96-win64.zip -OutFile upx-3.96-win64.zip
-          Expand-Archive -Path upx-3.96-win64.zip
-          cd upx-3.96-win64\upx-3.96-win64
-          dir
-          .\upx.exe --lzma ..\..\bin\alephium-mining-proxy.exe
-          cd ..
-
       - name: Rename mining proxy
-        run: mv bin/alephium-mining-proxy.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
-        shell: bash
+        run: |
+          mv bin/alephium-mining-proxy-linux bin/alephium-mining-proxy-linux_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-macos bin/alephium-mining-proxy-macos_$(git rev-parse --short "$GITHUB_SHA")
+          mv bin/alephium-mining-proxy-win.exe bin/alephium-mining-proxy-windows_$(git rev-parse --short "$GITHUB_SHA").exe
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-binary
+          path: bin/alephium-mining-proxy-linux_*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-binary
+          path: bin/alephium-mining-proxy-macos_*
 
       - uses: actions/upload-artifact@v2
         with:
@@ -99,7 +43,7 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: [build-linux-artifact, build-macos-artifact, build-windows-artifact]
+    needs: build-artifacts
     steps:
       - uses: actions/checkout@v2
 
